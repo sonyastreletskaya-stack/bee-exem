@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Личный кабинет участника ПГЭ</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-top">
+    <h1 class="gov-title">Личный кабинет участника ПГЭ</h1>
+    <div class="gov-subtitle">Раздел просмотра результатов экзаменационных испытаний</div>
+  </div>
+</header>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html">Главная</a>
+    <a href="essay.html">Сочинение</a>
+    <a href="chemistry.html">Химия ульев</a>
+    <a href="language.html">Пчелиный язык</a>
+    <a href="math.html">Математика</a>
+    <a href="beelogy.html">Пчелология</a>
+    <a href="#" onclick="logout()">Выйти</a>
+  </div>
+</nav>
+
+<main class="container">
+  <div class="page-box">
+    <h1>Результаты участника</h1>
+
+    <p><b>Участник:</b> <span id="user-email"></span></p>
+
+    <div class="status-box" id="final-status">
+      Загрузка статуса...
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Предмет</th>
+          <th>Тестовый балл</th>
+          <th>Минимальный балл</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a href="essay.html">Сочинение</a></td>
+          <td id="essay-score">—</td>
+          <td>зачёт</td>
+        </tr>
+        <tr>
+          <td><a href="chemistry.html">Химия ульев</a></td>
+          <td id="chemistry-score">—</td>
+          <td>36</td>
+        </tr>
+        <tr>
+          <td><a href="language.html">Пчелиный язык</a></td>
+          <td id="language-score">—</td>
+          <td>24</td>
+        </tr>
+        <tr>
+          <td><a href="math.html">Математика базовая</a></td>
+          <td id="math-score">—</td>
+          <td>3</td>
+        </tr>
+        <tr>
+          <td><a href="beelogy.html">Пчелология</a></td>
+          <td id="beelogy-score">—</td>
+          <td>36</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<footer class="footer">
+  Результаты отображаются после прохождения соответствующих разделов.
+</footer>
+
+<script src="js/app.js"></script>
+<script src="js/dashboard.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script src="js/app.js"></script>
+<script src="js/dashboard.js"></script>
+
+</body>
+</html>

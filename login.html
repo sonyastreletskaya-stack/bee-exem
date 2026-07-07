@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Вход в систему ПГЭ</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-top">
+    <h1 class="gov-title">ПГЭ-2026</h1>
+    <div class="gov-subtitle">Единая система регистрации участников</div>
+  </div>
+</header>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html">Главная</a>
+    <a href="dashboard.html">Личный кабинет</a>
+  </div>
+</nav>
+
+<main class="container">
+  <div class="page-box">
+    <h1>Вход / регистрация</h1>
+
+    <div class="official-note">
+      Для доступа к экзаменационным материалам необходимо пройти регистрацию. Почта и пароль, всё. Без капчи с дорожными знаками.
+    </div>
+
+    <form>
+      <div class="form-row">
+        <label for="email">Электронная почта</label>
+        <input type="email" id="email" required>
+      </div>
+
+      <div class="form-row">
+        <label for="password">Пароль</label>
+        <input type="password" id="password" required>
+      </div>
+
+      <button onclick="loginUser(event)">Войти</button>
+      <button onclick="registerUser(event)">Зарегистрироваться</button>
+    </form>
+  </div>
+</main>
+
+<footer class="footer">
+  Данные временно сохраняются в браузере пользователя. Это тестовая версия системы.
+</footer>
+
+<script src="js/app.js"></script>
+<script src="js/auth.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script src="js/auth.js"></script>
+
+</body>
+</html>
