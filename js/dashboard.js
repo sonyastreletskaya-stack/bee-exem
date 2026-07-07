@@ -1,8 +1,25 @@
-document.addEventListener("DOMContentLoaded", function () {
-  const user = requireAuth();
-  const result = getUserResult(user.email);
+document.addEventListener("DOMContentLoaded", async function () {
+  const user = await requireAuth();
+
+  if (!user) return;
 
   document.getElementById("user-email").textContent = user.email;
+
+  const { data: result, error } = await supabaseClient
+    .from("results")
+    .select("*")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (error) {
+    alert("Ошибка загрузки результатов: " + error.message);
+    return;
+  }
+
+  if (!result) {
+    document.getElementById("final-status").textContent = "Результаты пока не созданы. Выйдите и войдите снова.";
+    return;
+  }
 
   renderResult("essay-score", result.essay, null);
   renderResult("chemistry-score", result.chemistry, 36);
@@ -10,8 +27,7 @@ document.addEventListener("DOMContentLoaded", function () {
   renderResult("math-score", result.math, 3);
   renderResult("beelogy-score", result.beelogy, 36);
 
-  const finalStatus = document.getElementById("final-status");
-  finalStatus.textContent = getFinalStatus(result);
+  document.getElementById("final-status").textContent = getFinalStatus(result);
 });
 
 function renderResult(elementId, value, minValue) {
