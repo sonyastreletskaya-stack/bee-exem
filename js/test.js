@@ -427,6 +427,75 @@ const tests = {
     ]
   }
 };
+document.addEventListener("DOMContentLoaded", async function () {
+  try {
+    await requireAuth();
+
+    const page = document.body.dataset.test;
+
+    if (!page) {
+      document.getElementById("test-title").textContent = "Ошибка: не указан предмет теста.";
+      return;
+    }
+
+    if (!tests[page]) {
+      document.getElementById("test-title").textContent = "Ошибка: тест не найден.";
+      return;
+    }
+
+    renderTest(page);
+  } catch (error) {
+    console.error("Ошибка загрузки теста:", error);
+
+    const title = document.getElementById("test-title");
+    if (title) {
+      title.textContent = "Ошибка загрузки теста. Откройте консоль.";
+    }
+  }
+});
+
+function renderTest(testKey) {
+  const test = tests[testKey];
+
+  document.getElementById("test-title").textContent = test.title;
+
+  const form = document.getElementById("test-form");
+  form.innerHTML = "";
+
+  test.questions.forEach((question, questionIndex) => {
+    const questionBox = document.createElement("div");
+    questionBox.className = "question";
+
+    const title = document.createElement("div");
+    title.className = "question-title";
+    title.textContent = `${questionIndex + 1}. ${question.text}`;
+
+    questionBox.appendChild(title);
+
+    question.answers.forEach((answer, answerIndex) => {
+      const label = document.createElement("label");
+      label.className = "answer";
+
+      label.innerHTML = `
+        <input type="radio" name="question-${questionIndex}" value="${answerIndex}">
+        ${answer}
+      `;
+      questionBox.appendChild(label);
+    });
+
+    form.appendChild(questionBox);
+  });
+
+  const button = document.createElement("button");
+  button.type = "submit";
+  button.textContent = "Завершить экзамен";
+  form.appendChild(button);
+
+  form.onsubmit = function (event) {
+    event.preventDefault();
+    finishTest(testKey);
+  };
+}
 async function finishTest(testKey) {
   const test = tests[testKey];
 
