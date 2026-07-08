@@ -29,25 +29,41 @@
       Для доступа к экзаменационным материалам необходимо пройти регистрацию. Почта и пароль, всё. Без капчи с дорожными знаками.
     </div>
 
-    <form>
-      <div class="form-row">
-        <label for="email">Электронная почта</label>
-        <input type="email" id="email" required>
-      </div>
+<form>
+  <div class="form-row" id="nickname-row">
+    <label for="nickname">Ник участника</label>
+    <input type="text" id="nickname" placeholder="Например: Медовый_Бюрократ" minlength="2">
+  </div>
 
-      <div class="form-row">
-        <label for="password">Пароль</label>
-        <input type="password" id="password" required>
-      </div>
+  <div class="form-row">
+    <label for="email">Электронная почта</label>
+    <input type="email" id="email" required>
+  </div>
 
-      <button onclick="loginUser(event)">Войти</button>
-      <button onclick="registerUser(event)">Зарегистрироваться</button>
-    </form>
+  <div class="form-row">
+    <label for="password">Пароль</label>
+    <input type="password" id="password" required minlength="6">
+  </div>
+
+  <div class="form-row agreement-row">
+    <label class="checkbox-label">
+      <input type="checkbox" id="personal-data-agree">
+      Я согласен/согласна на обработку персональных данных
+    </label>
+  </div>
+
+  <p class="small-text">
+    <a href="privacy.html" target="_blank">Политика обработки персональных данных</a>
+  </p>
+
+  <button onclick="loginUser(event)">Войти</button>
+  <button onclick="registerUser(event)">Зарегистрироваться</button>
+</form>
   </div>
 </main>
 
 <footer class="footer">
-  Данные временно сохраняются в браузере пользователя. Это тестовая версия системы.
+  Данные сохраняются в единой системе ПГЭ и используются для отображения результатов участника.
 </footer>
 
 <script src="js/app.js"></script>

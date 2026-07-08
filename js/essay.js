@@ -1,5 +1,36 @@
 document.addEventListener("DOMContentLoaded", async function () {
-  await requireAuth();
+  const user = await requireAuth();
+
+  if (!user) return;
+
+  const { data: result, error } = await supabaseClient
+    .from("results")
+    .select("essay")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (error) {
+    alert("Ошибка проверки сочинения: " + error.message);
+    return;
+  }
+
+  if (
+    result &&
+    result.essay &&
+    result.essay !== "не отправлено" &&
+    result.essay !== null
+  ) {
+    const form = document.querySelector("form");
+
+    if (form) {
+      form.innerHTML = `
+        <div class="official-note">
+          Сочинение уже отправлено. Повторная попытка запрещена.
+        </div>
+        <a class="button" href="dashboard.html">Вернуться в личный кабинет</a>
+      `;
+    }
+  }
 });
 
 async function submitEssay(event) {
@@ -24,6 +55,7 @@ async function submitEssay(event) {
     .insert({
       user_id: user.id,
       email: user.email,
+      nickname: user.user_metadata?.nickname || "",
       text: text,
       status: "ожидает проверки"
     });
@@ -33,8 +65,12 @@ async function submitEssay(event) {
     return;
   }
 
-  await updateUserResult("essay", "ожидает проверки");
+  const saved = await updateUserResult("essay", "ожидает проверки");
 
-  alert("Сочинение отправлено на проверку.");
-  window.location.href = "dashboard.html";
+if (!saved) {
+  return;
+}
+
+alert("Сочинение отправлено на проверку.");
+window.location.href = "dashboard.html";
 }

@@ -272,3 +272,19 @@ td {
     padding: 7px;
   }
 }
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: normal;
+  max-width: 700px;
+}
+
+.checkbox-label input {
+  width: auto;
+  max-width: none;
+}
+
+.agreement-row {
+  margin-top: 16px;
+}

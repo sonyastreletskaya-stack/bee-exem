@@ -1,3 +1,5 @@
+let testStartTime = null;
+let timerInterval = null;
 const tests = {
   chemistry: {
     resultKey: "chemistry",
@@ -427,9 +429,51 @@ const tests = {
     ]
   }
 };
+
+function startTimer() {
+  testStartTime = Date.now();
+
+  const timerElement = document.getElementById("timer");
+
+  if (!timerElement) return;
+
+  timerInterval = setInterval(function () {
+    const seconds = Math.floor((Date.now() - testStartTime) / 1000);
+    timerElement.textContent = `Время выполнения: ${formatTime(seconds)}`;
+  }, 1000);
+}
+
+function stopTimer() {
+  if (timerInterval) {
+    clearInterval(timerInterval);
+  }
+
+  return Math.floor((Date.now() - testStartTime) / 1000);
+}
+
+function formatTime(totalSeconds) {
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  return `${minutes} мин. ${seconds.toString().padStart(2, "0")} сек.`;
+}
+
+function shuffleArray(array) {
+  const copy = [...array];
+
+  for (let i = copy.length - 1; i > 0; i--) {
+    const randomIndex = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[randomIndex]] = [copy[randomIndex], copy[i]];
+  }
+
+  return copy;
+}
+
 document.addEventListener("DOMContentLoaded", async function () {
   try {
-    await requireAuth();
+    const user = await requireAuth();
+
+    if (!user) return;
 
     const page = document.body.dataset.test;
 
@@ -440,6 +484,34 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     if (!tests[page]) {
       document.getElementById("test-title").textContent = "Ошибка: тест не найден.";
+      return;
+    }
+
+    const test = tests[page];
+
+    const { data: result, error } = await supabaseClient
+      .from("results")
+      .select("*")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (error) {
+      document.getElementById("test-title").textContent =
+        "Ошибка проверки попытки: " + error.message;
+      return;
+    }
+
+    if (result && result[test.resultKey] !== null && result[test.resultKey] !== undefined) {
+      document.getElementById("test-title").textContent = "Экзамен уже пройден";
+
+      const form = document.getElementById("test-form");
+      form.innerHTML = `
+        <div class="official-note">
+          Вы уже проходили этот экзамен. Повторная попытка запрещена.
+        </div>
+        <a class="button" href="dashboard.html">Вернуться в личный кабинет</a>
+      `;
+
       return;
     }
 
@@ -462,6 +534,12 @@ function renderTest(testKey) {
   const form = document.getElementById("test-form");
   form.innerHTML = "";
 
+  const timerBox = document.createElement("div");
+  timerBox.className = "official-note";
+  timerBox.id = "timer";
+  timerBox.textContent = "Время выполнения: 0 мин. 00 сек.";
+  form.appendChild(timerBox);
+
   test.questions.forEach((question, questionIndex) => {
     const questionBox = document.createElement("div");
     questionBox.className = "question";
@@ -472,14 +550,24 @@ function renderTest(testKey) {
 
     questionBox.appendChild(title);
 
-    question.answers.forEach((answer, answerIndex) => {
+    const answersWithIndexes = question.answers.map((answer, answerIndex) => {
+      return {
+        text: answer,
+        originalIndex: answerIndex
+      };
+    });
+
+    const shuffledAnswers = shuffleArray(answersWithIndexes);
+
+    shuffledAnswers.forEach((answer) => {
       const label = document.createElement("label");
       label.className = "answer";
 
       label.innerHTML = `
-        <input type="radio" name="question-${questionIndex}" value="${answerIndex}">
-        ${answer}
+        <input type="radio" name="question-${questionIndex}" value="${answer.originalIndex}">
+        ${answer.text}
       `;
+
       questionBox.appendChild(label);
     });
 
@@ -495,19 +583,38 @@ function renderTest(testKey) {
     event.preventDefault();
     finishTest(testKey);
   };
+
+  startTimer();
 }
+
 async function finishTest(testKey) {
   const test = tests[testKey];
 
+  let unansweredCount = 0;
   let correctCount = 0;
 
   test.questions.forEach((question, questionIndex) => {
     const selected = document.querySelector(`input[name="question-${questionIndex}"]:checked`);
 
-    if (selected && Number(selected.value) === question.correct) {
+    if (!selected) {
+      unansweredCount++;
+      return;
+    }
+
+    if (Number(selected.value) === question.correct) {
       correctCount++;
     }
   });
+
+  if (unansweredCount > 0) {
+    const confirmFinish = confirm(
+      `Вы не ответили на ${unansweredCount} вопрос(ов). Всё равно завершить экзамен? Повторной попытки не будет.`
+    );
+
+    if (!confirmFinish) {
+      return;
+    }
+  }
 
   let score;
 
@@ -517,8 +624,14 @@ async function finishTest(testKey) {
     score = Math.round((correctCount / test.questions.length) * 100);
   }
 
-  await updateUserResult(test.resultKey, score);
+  const timeSeconds = stopTimer();
 
-  alert(`Экзамен завершён. Ваш результат: ${score}`);
+  const saved = await updateUserResult(test.resultKey, score, timeSeconds);
+
+  if (!saved) {
+    return;
+  }
+
+  alert(`Экзамен завершён. Ваш результат: ${score}. Время: ${formatTime(timeSeconds)}`);
   window.location.href = "dashboard.html";
 }

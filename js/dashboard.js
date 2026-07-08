@@ -4,6 +4,8 @@ document.addEventListener("DOMContentLoaded", async function () {
   if (!user) return;
 
   document.getElementById("user-email").textContent = user.email;
+  document.getElementById("user-nickname").textContent =
+  user.user_metadata?.nickname || result?.nickname || "—";
 
   const { data: result, error } = await supabaseClient
     .from("results")
@@ -21,11 +23,18 @@ document.addEventListener("DOMContentLoaded", async function () {
     return;
   }
 
+  document.getElementById("user-nickname").textContent =
+  user.user_metadata?.nickname || result.nickname || "—";
+
   renderResult("essay-score", result.essay, null);
   renderResult("chemistry-score", result.chemistry, 36);
   renderResult("language-score", result.language, 24);
   renderResult("math-score", result.math, 3);
   renderResult("beelogy-score", result.beelogy, 36);
+  renderTime("chemistry-time", result.chemistry_time);
+  renderTime("language-time", result.language_time);
+  renderTime("math-time", result.math_time);
+  renderTime("beelogy-time", result.beelogy_time);
 
   document.getElementById("final-status").textContent = getFinalStatus(result);
 });
@@ -59,4 +68,19 @@ function getFinalStatus(result) {
   }
 
   return "Экзамен не завершён или не сдан.";
+}
+function renderTime(elementId, seconds) {
+  const element = document.getElementById(elementId);
+
+  if (!element) return;
+
+  if (seconds === null || seconds === undefined) {
+    element.textContent = "—";
+    return;
+  }
+
+  const minutes = Math.floor(seconds / 60);
+  const restSeconds = seconds % 60;
+
+  element.textContent = `${minutes} мин. ${restSeconds.toString().padStart(2, "0")} сек.`;
 }

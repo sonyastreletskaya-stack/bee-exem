@@ -1,17 +1,45 @@
 async function registerUser(event) {
   event.preventDefault();
 
+  const nickname = document.getElementById("nickname").value.trim();
   const email = document.getElementById("email").value.trim().toLowerCase();
   const password = document.getElementById("password").value.trim();
+  const agreement = document.getElementById("personal-data-agree").checked;
+
+  if (!nickname) {
+    alert("Укажите ник участника.");
+    return;
+  }
+
+  if (nickname.length < 2) {
+    alert("Ник слишком короткий.");
+    return;
+  }
 
   if (!email || !password) {
     alert("Заполните почту и пароль.");
     return;
   }
 
+  if (password.length < 6) {
+    alert("Пароль должен быть минимум 6 символов.");
+    return;
+  }
+
+  if (!agreement) {
+    alert("Для регистрации нужно согласие на обработку персональных данных.");
+    return;
+  }
+
   const { data, error } = await supabaseClient.auth.signUp({
     email: email,
-    password: password
+    password: password,
+    options: {
+      data: {
+        nickname: nickname,
+        personal_data_agree: true
+      }
+    }
   });
 
   if (error) {
@@ -28,6 +56,11 @@ async function loginUser(event) {
 
   const email = document.getElementById("email").value.trim().toLowerCase();
   const password = document.getElementById("password").value.trim();
+
+  if (!email || !password) {
+    alert("Введите почту и пароль.");
+    return;
+  }
 
   const { data, error } = await supabaseClient.auth.signInWithPassword({
     email: email,
@@ -52,6 +85,7 @@ async function createResultIfMissing() {
   }
 
   const user = userData.user;
+  const nickname = user.user_metadata?.nickname || "";
 
   const { data: existingResult, error: selectError } = await supabaseClient
     .from("results")
@@ -70,11 +104,16 @@ async function createResultIfMissing() {
       .insert({
         user_id: user.id,
         email: user.email,
+        nickname: nickname,
         essay: "не отправлено",
         chemistry: null,
         language: null,
         math: null,
-        beelogy: null
+        beelogy: null,
+        chemistry_time: null,
+        language_time: null,
+        math_time: null,
+        beelogy_time: null
       });
 
     if (insertError) {

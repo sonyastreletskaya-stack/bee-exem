@@ -48,12 +48,12 @@ function getScoreClass(value, minValue) {
   return "score-bad";
 }
 
-async function updateUserResult(subject, score) {
+async function updateUserResult(subject, score, timeSeconds = null) {
   const user = await getCurrentUser();
 
   if (!user) {
     window.location.href = "login.html";
-    return;
+    return false;
   }
 
   const { data: currentResult, error: selectError } = await supabaseClient
@@ -64,7 +64,12 @@ async function updateUserResult(subject, score) {
 
   if (selectError) {
     alert("Ошибка получения результата: " + selectError.message);
-    return;
+    return false;
+  }
+
+  if (!currentResult) {
+    alert("Ошибка: строка результатов не найдена. Перезайдите в личный кабинет.");
+    return false;
   }
 
   const updateData = {
@@ -72,15 +77,28 @@ async function updateUserResult(subject, score) {
   };
 
   if (subject === "essay") {
-    updateData[subject] = score;
-  } else {
-    const oldScore = currentResult ? currentResult[subject] : null;
+    if (
+      currentResult.essay &&
+      currentResult.essay !== "не отправлено" &&
+      currentResult.essay !== null
+    ) {
+      alert("Сочинение уже отправлено. Повторная попытка запрещена.");
+      return false;
+    }
 
-    if (oldScore === null || oldScore === undefined || Number(score) > Number(oldScore)) {
-      updateData[subject] = score;
-    } else {
-      alert(`Новый результат ${score} не выше старого результата ${oldScore}. Сохранён лучший балл.`);
-      return;
+    updateData.essay = score;
+  } else {
+    const oldScore = currentResult[subject];
+
+    if (oldScore !== null && oldScore !== undefined) {
+      alert("Вы уже проходили этот экзамен. Повторная попытка запрещена.");
+      return false;
+    }
+
+    updateData[subject] = score;
+
+    if (timeSeconds !== null) {
+      updateData[`${subject}_time`] = timeSeconds;
     }
   }
 
@@ -91,5 +109,8 @@ async function updateUserResult(subject, score) {
 
   if (error) {
     alert("Ошибка сохранения результата: " + error.message);
+    return false;
   }
+
+  return true;
 }
