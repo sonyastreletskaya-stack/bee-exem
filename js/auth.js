@@ -62,17 +62,24 @@ async function loginUser(event) {
     return;
   }
 
+  const buttons = document.querySelectorAll("button");
+  buttons.forEach(button => button.disabled = true);
+
+  const loginButton = event.target;
+  const oldText = loginButton.textContent;
+  loginButton.textContent = "Вход в систему...";
+
   const { data, error } = await supabaseClient.auth.signInWithPassword({
     email: email,
     password: password
   });
 
   if (error) {
+    buttons.forEach(button => button.disabled = false);
+    loginButton.textContent = oldText;
     alert("Ошибка входа: " + error.message);
     return;
   }
-
-  await createResultIfMissing();
 
   window.location.href = "dashboard.html";
 }
