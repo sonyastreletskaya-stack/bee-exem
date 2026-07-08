@@ -60,7 +60,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.getElementById("user-nickname").textContent =
       user.user_metadata?.nickname || result.nickname || "—";
 
-    renderResult("essay-score", result.essay, null);
+    renderResult("essay-score", result.essay_score, 70);
     renderResult("chemistry-score", result.chemistry, 36);
     renderResult("language-score", result.language, 24);
     renderResult("math-score", result.math, 3);
@@ -113,7 +113,7 @@ function renderTime(elementId, seconds) {
 
 function getFinalStatus(result) {
   if (
-    result.essay === "зачёт" &&
+    result.essay_score >= 50 &&
     result.chemistry >= 36 &&
     result.language >= 24 &&
     result.math >= 3 &&
@@ -122,7 +122,7 @@ function getFinalStatus(result) {
     return "Экзамен сдан. Кандидат допущен к улью.";
   }
 
-  if (result.essay === "ожидает проверки") {
+  if (result.essay === "ожидает проверки" || result.essay_score === null || result.essay_score === undefined) {
     return "Ожидается проверка сочинения.";
   }
 
