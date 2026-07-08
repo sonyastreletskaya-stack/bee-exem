@@ -60,7 +60,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.getElementById("user-nickname").textContent =
       user.user_metadata?.nickname || result.nickname || "—";
 
-    renderResult("essay-score", result.essay_score, 70);
+    renderEssayResult("essay-score", result.essay_score, 70);
     renderResult("chemistry-score", result.chemistry, 36);
     renderResult("language-score", result.language, 24);
     renderResult("math-score", result.math, 3);
@@ -94,7 +94,26 @@ function renderResult(elementId, value, minValue) {
   element.textContent = value;
   element.className = getScoreClass(value, minValue);
 }
+function renderEssayResult(elementId, value, minValue) {
+  const element = document.getElementById(elementId);
 
+  if (!element) return;
+
+  if (value === null || value === undefined) {
+    element.textContent = "ожидает проверки";
+    element.className = "score-wait";
+    return;
+  }
+
+  if (Number(value) >= minValue) {
+    element.textContent = `${value} — экзамен сдан`;
+    element.className = "score-good";
+    return;
+  }
+
+  element.textContent = `${value} — экзамен не сдан`;
+  element.className = "score-bad";
+}
 function renderTime(elementId, seconds) {
   const element = document.getElementById(elementId);
 
