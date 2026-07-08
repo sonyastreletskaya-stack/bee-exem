@@ -1,46 +1,89 @@
 document.addEventListener("DOMContentLoaded", async function () {
-  const user = await requireAuth();
+  try {
+    const user = await requireAuth();
 
-  if (!user) return;
+    if (!user) return;
 
-  document.getElementById("user-email").textContent = user.email;
-  document.getElementById("user-nickname").textContent =
-  user.user_metadata?.nickname || result?.nickname || "—";
+    document.getElementById("user-email").textContent = user.email;
 
-  const { data: result, error } = await supabaseClient
-    .from("results")
-    .select("*")
-    .eq("user_id", user.id)
-    .maybeSingle();
+    let { data: result, error } = await supabaseClient
+      .from("results")
+      .select("*")
+      .eq("user_id", user.id)
+      .maybeSingle();
 
-  if (error) {
-    alert("Ошибка загрузки результатов: " + error.message);
-    return;
+    if (error) {
+      document.getElementById("final-status").textContent =
+        "Ошибка загрузки результатов: " + error.message;
+      return;
+    }
+
+    if (!result) {
+      const { error: insertError } = await supabaseClient
+        .from("results")
+        .insert({
+          user_id: user.id,
+          email: user.email,
+          nickname: user.user_metadata?.nickname || "",
+          essay: "не отправлено",
+          chemistry: null,
+          language: null,
+          math: null,
+          beelogy: null,
+          chemistry_time: null,
+          language_time: null,
+          math_time: null,
+          beelogy_time: null
+        });
+
+      if (insertError) {
+        document.getElementById("final-status").textContent =
+          "Ошибка создания строки результатов: " + insertError.message;
+        return;
+      }
+
+      const response = await supabaseClient
+        .from("results")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (response.error) {
+        document.getElementById("final-status").textContent =
+          "Ошибка повторной загрузки результатов: " + response.error.message;
+        return;
+      }
+
+      result = response.data;
+    }
+
+    document.getElementById("user-nickname").textContent =
+      user.user_metadata?.nickname || result.nickname || "—";
+
+    renderResult("essay-score", result.essay, null);
+    renderResult("chemistry-score", result.chemistry, 36);
+    renderResult("language-score", result.language, 24);
+    renderResult("math-score", result.math, 3);
+    renderResult("beelogy-score", result.beelogy, 36);
+
+    renderTime("chemistry-time", result.chemistry_time);
+    renderTime("language-time", result.language_time);
+    renderTime("math-time", result.math_time);
+    renderTime("beelogy-time", result.beelogy_time);
+
+    document.getElementById("final-status").textContent = getFinalStatus(result);
+  } catch (err) {
+    console.error("Критическая ошибка dashboard:", err);
+
+    document.getElementById("final-status").textContent =
+      "Критическая ошибка загрузки кабинета. Откройте консоль.";
   }
-
-  if (!result) {
-    document.getElementById("final-status").textContent = "Результаты пока не созданы. Выйдите и войдите снова.";
-    return;
-  }
-
-  document.getElementById("user-nickname").textContent =
-  user.user_metadata?.nickname || result.nickname || "—";
-
-  renderResult("essay-score", result.essay, null);
-  renderResult("chemistry-score", result.chemistry, 36);
-  renderResult("language-score", result.language, 24);
-  renderResult("math-score", result.math, 3);
-  renderResult("beelogy-score", result.beelogy, 36);
-  renderTime("chemistry-time", result.chemistry_time);
-  renderTime("language-time", result.language_time);
-  renderTime("math-time", result.math_time);
-  renderTime("beelogy-time", result.beelogy_time);
-
-  document.getElementById("final-status").textContent = getFinalStatus(result);
 });
 
 function renderResult(elementId, value, minValue) {
   const element = document.getElementById(elementId);
+
+  if (!element) return;
 
   if (value === null || value === undefined) {
     element.textContent = "не пройдено";
@@ -50,6 +93,22 @@ function renderResult(elementId, value, minValue) {
 
   element.textContent = value;
   element.className = getScoreClass(value, minValue);
+}
+
+function renderTime(elementId, seconds) {
+  const element = document.getElementById(elementId);
+
+  if (!element) return;
+
+  if (seconds === null || seconds === undefined) {
+    element.textContent = "—";
+    return;
+  }
+
+  const minutes = Math.floor(seconds / 60);
+  const restSeconds = seconds % 60;
+
+  element.textContent = `${minutes} мин. ${restSeconds.toString().padStart(2, "0")} сек.`;
 }
 
 function getFinalStatus(result) {
@@ -68,19 +127,4 @@ function getFinalStatus(result) {
   }
 
   return "Экзамен не завершён или не сдан.";
-}
-function renderTime(elementId, seconds) {
-  const element = document.getElementById(elementId);
-
-  if (!element) return;
-
-  if (seconds === null || seconds === undefined) {
-    element.textContent = "—";
-    return;
-  }
-
-  const minutes = Math.floor(seconds / 60);
-  const restSeconds = seconds % 60;
-
-  element.textContent = `${minutes} мин. ${restSeconds.toString().padStart(2, "0")} сек.`;
 }
