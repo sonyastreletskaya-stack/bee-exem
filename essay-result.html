@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Результат проверки сочинения</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-top">
+    <h1 class="gov-title">Результат проверки сочинения</h1>
+    <div class="gov-subtitle">Раздел просмотра экспертной проверки письменной работы</div>
+  </div>
+</header>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html">Главная</a>
+    <a href="dashboard.html">Личный кабинет</a>
+    <a href="essay.html">Сочинение</a>
+    <a href="#" onclick="logout()">Выйти</a>
+  </div>
+</nav>
+
+<main class="container">
+  <div class="page-box">
+    <h1>Проверка сочинения</h1>
+
+    <div id="essay-result-status" class="status-box">
+      Загрузка данных...
+    </div>
+
+    <div id="essay-result-content" style="display: none;">
+      <p><b>Ник:</b> <span id="essay-nickname">—</span></p>
+      <p><b>Почта:</b> <span id="essay-email">—</span></p>
+      <p><b>Балл за сочинение:</b> <span id="essay-score">—</span></p>
+      <p><b>Статус:</b> <span id="essay-status">—</span></p>
+
+      <h2>Текст сочинения</h2>
+      <div class="official-note essay-text-box" id="essay-text">
+        —
+      </div>
+
+      <h2>Комментарий проверяющего</h2>
+      <div class="official-note essay-comment-box" id="essay-comment">
+        —
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  Результат проверки отображается после рассмотрения сочинения проверяющим.
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script src="js/app.js"></script>
+<script src="js/essay-result.js"></script>
+
+</body>
+</html>
