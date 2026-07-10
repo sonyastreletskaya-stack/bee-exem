@@ -1,3 +1,9 @@
+const EXAM_CLOSED = true;
+
+if (EXAM_CLOSED) {
+  window.location.href = "closed.html";
+}
+
 document.addEventListener("DOMContentLoaded", async function () {
   const user = await requireAuth();
 

@@ -1,3 +1,9 @@
+const EXAM_CLOSED = true;
+
+if (EXAM_CLOSED) {
+  window.location.href = "closed.html";
+}
+
 let currentQuestions = [];
 let testStartTime = null;
 let timerInterval = null;
