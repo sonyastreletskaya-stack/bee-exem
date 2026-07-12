@@ -29,7 +29,7 @@ async function loadPublicResults() {
 
     tr.innerHTML = `
       <td>${index + 1}</td>
-      <td>${row.nickname || "Без ника"}</td>
+      <td>${formatNickname(row.nickname)}</td>
       <td>${row.total_score ?? "—"}</td>
     `;
 
@@ -38,4 +38,13 @@ async function loadPublicResults() {
 
   waitBox.style.display = "none";
   table.style.display = "table";
+}
+function formatNickname(nickname) {
+  if (!nickname) return "Без ника";
+
+  if (nickname.length <= 45) {
+    return nickname;
+  }
+
+  return nickname.slice(0, 45) + "...";
 }

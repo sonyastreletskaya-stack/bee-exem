@@ -288,3 +288,31 @@ td {
 .agreement-row {
   margin-top: 16px;
 }
+
+#public-results-table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+#public-results-table th,
+#public-results-table td {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+#public-results-table th:nth-child(1),
+#public-results-table td:nth-child(1) {
+  width: 70px;
+}
+
+#public-results-table th:nth-child(2),
+#public-results-table td:nth-child(2) {
+  width: auto;
+}
+
+#public-results-table th:nth-child(3),
+#public-results-table td:nth-child(3) {
+  width: 130px;
+  text-align: center;
+}
