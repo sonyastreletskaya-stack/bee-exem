@@ -87,9 +87,31 @@
   Прохождение сочинения и тестовых разделов больше недоступно.
 </div>
 
-<div class="official-note">
-  Ожидайте публикации итоговых результатов. После обработки данных будут опубликованы ники участников и общее количество набранных баллов.
+<div class="status-box" style="margin-top: 24px;">
+  ПГЭ завершён. Все работы проверены, результаты опубликованы.
 </div>
+
+<div class="official-note">
+  Ниже отображается общая таблица результатов участников: ник и итоговый балл за все предметы.
+</div>
+
+<h2>Общие результаты ПГЭ</h2>
+
+<div id="results-wait" class="official-note">
+  Загрузка итоговых результатов...
+</div>
+
+<table id="public-results-table" style="display: none;">
+  <thead>
+    <tr>
+      <th>Место</th>
+      <th>Ник участника</th>
+      <th>Общий балл</th>
+    </tr>
+  </thead>
+  <tbody id="public-results-body">
+  </tbody>
+</table>
   </div>
 </main>
 
@@ -101,6 +123,7 @@
 <script src="js/supabase.js"></script>
 <script src="js/app.js"></script>
 <script src="js/dashboard.js"></script>
+<script src="js/closed.js"></script>
 
 </body>
 </html>
